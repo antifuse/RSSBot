@@ -6,7 +6,7 @@ const feeder = new FeedEmitter();
 const turndown = new Turndown({emDelimiter: "*", codeBlockStyle: "fenced"});
 import log from "./log";
 
-let cfg: {prefix: string, channels: string[], token: string, visitedLinks: string[], rssUrl: string} = JSON.parse(fs.readFileSync("./config.json", { encoding: 'utf8' }));
+let cfg: {prefix: string, channels: {id: string, ping: string}[], token: string, visitedLinks: string[], rssUrl: string} = JSON.parse(fs.readFileSync("./config.json", { encoding: 'utf8' }));
 function saveCfg() {
     fs.writeFile("./config.json", JSON.stringify(cfg, null, 2), ()=>{});
 }
@@ -27,12 +27,12 @@ client.on('message', message => {
         }
         case "subscribe": {
             if (!cfg.channels) cfg.channels = [];
-            if (cfg.channels.includes(message.channel.id)) {
-                let index = cfg.channels.indexOf(message.channel.id);
+            let index = cfg.channels.findIndex((item)=>item.id == message.channel.id);
+            if (index >= 0) {
                 cfg.channels.splice(index, 1);
                 message.channel.send("Du hast die EMA-Neuigkeiten für diesen Kanal abbestellt.")
             } else {
-                cfg.channels.push(message.channel.id);
+                cfg.channels.push({id: message.channel.id, ping: args[0] || "@everyone"});
                 message.channel.send("Dieser Kanal erhält nun EMA-Neuigkeiten!");
             }
             saveCfg();
@@ -59,8 +59,8 @@ feeder.on('new-item', async (item)=>{
 
     saveCfg();
     log.info(`New RSS Item: ${item.title}`);
-    for (let id of cfg.channels) {
-        let channel = await client.channels.fetch(id);
+    for (let ch of cfg.channels) {
+        let channel = await client.channels.fetch(ch.id);
         if (channel instanceof TextChannel || channel instanceof DMChannel || channel instanceof NewsChannel) {
             channel.send("@everyone",new Discord.MessageEmbed({author: {}, title: item.title, description: text.length > 2048 ? text.substr(0,2045) + "..." : text, timestamp: item.date, url: item.link, footer: {text: item.author}}));
             log.info(`Sent to ${channel.id}`);
