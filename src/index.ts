@@ -62,7 +62,7 @@ feeder.on('new-item', async (item)=>{
     for (let ch of cfg.channels) {
         let channel = await client.channels.fetch(ch.id);
         if (channel instanceof TextChannel || channel instanceof DMChannel || channel instanceof NewsChannel) {
-            channel.send("@everyone",new Discord.MessageEmbed({author: {}, title: item.title, description: text.length > 2048 ? text.substr(0,2045) + "..." : text, timestamp: item.date, url: item.link, footer: {text: item.author}}));
+            channel.send(ch.ping,new Discord.MessageEmbed({author: {name: "Neuer Beitrag auf ema-bonn.de"}, title: item.title, description: text.length > 2048 ? text.substr(0,2045) + "..." : text, timestamp: item.date, url: item.link, footer: {text: item.author}}));
             log.info(`Sent to ${channel.id}`);
         }
     }
