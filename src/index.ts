@@ -2,7 +2,7 @@ import Discord, { Collection, DMChannel, Message, NewsChannel, PermissionResolva
 import * as fs from "fs";
 import FeedEmitter from 'rss-feed-emitter';
 import Turndown from "turndown";
-const feeder = new FeedEmitter();
+const feeder = new FeedEmitter({userAgent: "Mozilla/3.0"});
 const turndown = new Turndown({emDelimiter: "*", codeBlockStyle: "fenced"});
 import log from "./log";
 
