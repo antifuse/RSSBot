@@ -66,4 +66,8 @@ feeder.on('new-item', async (item)=>{
             log.info(`Sent to ${channel.id}`);
         }
     }
+});
+
+feeder.on("error", (error)=> {
+    log.warn(error);
 })
