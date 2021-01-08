@@ -12,7 +12,13 @@ function saveCfg() {
 }
 
 const client = new Discord.Client();
-client.login(cfg.token).then(()=>{log.info("Ready.")});
+client.login(cfg.token).then(()=>{
+    log.info("Ready.");
+    feeder.add({
+        url: cfg.rssUrl,
+        refresh: 120000
+    });
+});
 
 client.on('message', message => {
     if (!message.content.startsWith(cfg.prefix) || message.author.bot) return;
@@ -40,11 +46,6 @@ client.on('message', message => {
     }
 });
 
-feeder.add({
-    url: cfg.rssUrl,
-    refresh: 120000
-});
-
 turndown.addRule('img', {
     filter: ["img"],
     replacement: (content) => {
@@ -53,8 +54,9 @@ turndown.addRule('img', {
 })
 
 feeder.on('new-item', async (item)=>{
-    if (cfg.visitedLinks.includes(item.link)) return;
-    cfg.visitedLinks.push(item.link);
+    console.log(item);
+    if (cfg.visitedLinks.includes(item.title)) return;
+    cfg.visitedLinks.push(item.title);
     let text = turndown.turndown(item.description);
 
     saveCfg();
